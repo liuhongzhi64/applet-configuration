@@ -1,0 +1,10 @@
+/* pages/zone/goods/edit/index.wxss */
+.erys-item__box {
+  width: calc(100%/3);
+}
+.keep{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 10;
+}
