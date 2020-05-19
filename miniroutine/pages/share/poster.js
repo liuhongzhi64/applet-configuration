@@ -104,6 +104,7 @@ Page({
   onReady: function () {
     let that = this;
     let userInfo = this.data.details;
+    console.log(that.data.targetId)
     remote.createQr(this.data.targetId, 1, {
       path: `/pages/index?targetId=${that.data.targetId}`,
       width: 430,

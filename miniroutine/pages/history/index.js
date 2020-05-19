@@ -64,7 +64,12 @@ Page({
     let listData = this.data.listData;
     let page = that.data.page;
     let query = that.data.query;
-    remote.getMyRecords(query.userSysNo, query.touserSysNo, query.times, query.timesFinish, 1, page).then(res => {
+    
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在71引用
+    console.log(merchantSysNo)
+    // remote.getMyRecords(query.userSysNo, query.touserSysNo, query.times, query.timesFinish, 1, page).then(res => {
+    remote.getMyRecords(query.userSysNo, query.touserSysNo, query.times, query.timesFinish, 1, merchantSysNo, page).then(res => {
       let result = res.data;
       if (page.currentPage < result.length) {
         more = false;
@@ -91,7 +96,11 @@ Page({
   // },
   initVip() {
     let that = this;
-    remote.getUserPackage(this.data.uniqueKey).then(res => {
+
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在71引用
+
+    remote.getUserPackage(this.data.uniqueKey, merchantSysNo).then(res => {
       that.setData({
         vip: res.data.AIData
       })
@@ -128,7 +137,9 @@ Page({
         }
       })
     } else {
-      remote.isPass(this.data.uniqueKey).then(res => {
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+      remote.isPass(this.data.uniqueKey, merchantSysNo).then(res => {
         // console.log(res)
         wx.navigateTo({
           url: `../zone/radar/check?hadSend=${res.success}&suggestPerson=${res.data}`,

@@ -38,7 +38,7 @@
     <!-- 商品卖点 -->
     <view class="bg-white common-padding margin-top">
       <view class="text-shadow text-lg flex flex-row justify-start align-center text-black">商品卖点
-        <view class="text-lg text-shadow text-gray">(最少10个字)</view>
+        <!-- <view class="text-lg text-shadow text-gray">(最少10个字)</view> -->
       </view>
       <view class="margin-top">
         <input name="productDescription" class="text-orange" maxlength="200" placeholder="请添加商品卖点" placeholder-class="text-gray" value="{{ form.productDescription }}"></input>

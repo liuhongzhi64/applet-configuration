@@ -5,6 +5,7 @@ Page({
   onLoad: function (options) {
     // console.log(options)
     let item = JSON.parse(options.item);
+    console.log(item)
     this.setData({
       userInfo: item
     })
@@ -16,7 +17,7 @@ Page({
     let userInfo = this.data.userInfo;
     // console.log(userInfo)
     wx.makePhoneCall({
-      phoneNumber: userInfo.TelePhone,
+      phoneNumber: userInfo.TelePhone || userInfo.Phone,
     })
   }
 })

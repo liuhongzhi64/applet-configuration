@@ -188,7 +188,8 @@ Page({
     let maxSize = this.data.maxSize;
     let that = this;
     wx.chooseVideo({
-      maxDuration: "120",
+      // maxDuration: "120",//以前的代码
+      maxDuration: 60,
       success(res) {
         if (res.size > maxSize) {
           wx.showToast({
@@ -293,6 +294,7 @@ Page({
            })
          })
        } else {
+          console.log(data)
          product.insertProduct(data).then(res => {
            wx.showToast({
              title: '上传完成',
@@ -356,7 +358,8 @@ Page({
         })
       }
     }
-    
+    // 从本地取企业编号然后在接口里传值
+    let configurationSysNo = wx.getStorageSync(constants.MerchantSysNo)
     let data =  [{
       DefaultImage: temp[0]['ImagePath'] || temp[0]['path'],
       DefaultImageList: temp,
@@ -372,7 +375,8 @@ Page({
       RetailPrice: form.productPrice,
       SKUModel: form.productModel,
       ShowPrice: 1,
-      VideoImage: videoSrc
+      VideoImage: videoSrc,
+      ConfigurationSysNo: configurationSysNo
     }];
     if (item) {
       data[0]['SysNo'] = item.SysNo

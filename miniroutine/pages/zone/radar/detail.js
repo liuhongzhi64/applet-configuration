@@ -97,7 +97,11 @@ Page({
     let that = this;
     if (index == 0) {
       // 累计客户
-      remote.getCustomerInfoBySysNo(uniqueKey, type, sortType, page).then(res => {
+
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在104引用
+
+      remote.getCustomerInfoBySysNo(uniqueKey, type, sortType, merchantSysNo, page).then(res => {
         if (res.success) {
           let temp = res.data;
           for (let i = 0; i < temp.length; i++) {
@@ -117,8 +121,12 @@ Page({
         }
       })
     } else if (index == 1) {
+
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在129引用
+
       // 累计访问
-      remote.getCustomerRecordsBySysNo(uniqueKey, type, sortType, page).then(res => {
+      remote.getCustomerRecordsBySysNo(uniqueKey, type, sortType, merchantSysNo, page).then(res => {
         if (res.success) {
           let temp = res.data;
           for (let i = 0; i < temp.length; i++) {
@@ -140,7 +148,11 @@ Page({
     } else if (index == 2) {
       // console.log("累计跟进")  
       // 累计跟进
-      remote.getFollowupCustomerBySysNo(uniqueKey, type, sortType, page).then(res => {
+
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在155引用
+
+      remote.getFollowupCustomerBySysNo(uniqueKey, type, sortType, merchantSysNo, page).then(res => {
         if (res.success) {
           let temp = res.data;
           for (let i = 0; i < temp.length; i++) {
@@ -163,7 +175,11 @@ Page({
       // console.log("获取电话")
       let phoneType = sortType
       console.log(phoneType)
-      remote.getUserPhone(uniqueKey, type, phoneType, page).then(res => {
+
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在182引用
+
+      remote.getUserPhone(uniqueKey, type, phoneType, merchantSysNo, page).then(res => {
         if (res.success) {
           let temp = res.data;
           // console.log(temp)
@@ -186,7 +202,11 @@ Page({
     }
     else {
       // 剩余发送请求，获取参数
-      remote.getRadarRecordBySysNo(uniqueKey, this.data.radarType, type, sortType, page).then(res => {
+
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在205引用
+
+      remote.getRadarRecordBySysNo(uniqueKey, this.data.radarType, type, sortType, merchantSysNo, page).then(res => {
         if (res.success) {
           let temp = res.data;
           for (let i = 0; i < temp.length; i++) {

@@ -21,7 +21,7 @@
           <button class="bg-button-1 common-button" style="margin-top: 0;" hover-class="bg-button-hover" hover-class="bg-button-hover" bindtap="callmeMaybe">联系热线</button>
         </form> -->
         <image src="../../../../static/icon/dadasdasdasdasdasda.png" class="margin-top margin-bottom" style="width: 350rpx; height: 20rpx;"></image>
-        <button class="bg-button-1 common-button" style="margin-top: 0;" hover-class="bg-button-hover" hover-class="bg-button-hover" bindtap="callmeMaybe">联系热线</button>
+        <button class="bg-button-1 common-button" style="margin-top: 0;" hover-class="bg-button-hover" hover-class="bg-button-hover" bindtap="callmeMaybe">拨打电话</button>
       </view>
     </view>
     <image style="width: 60rpx; height: 60rpx;margin-top: -60rpx;" src="../../../../static/icon/cancle_pure.png" bindtap="cancleSalerToast"></image>

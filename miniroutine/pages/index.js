@@ -17,7 +17,6 @@ Page({
     title: '',
     homeLoading: false,
     navTitle: '创建名片',
-    // 改为线上版本是本文件要改此处和95行，
     targetUserId: 295,//测试ID用这个
     // targetUserId:325,//这个是我自己的测试ID
     // targetUserId: 79,//线上用这个默认的ID
@@ -34,6 +33,8 @@ Page({
     buttonOpenTypeGetUserInfoShow:true,
     buttonOpenTypeGetPhoneNumberShow:false,
     buttonOpenTypeDefaultShow:false,
+    // merchantSysNo:1431,//配置企业编号线上
+    merchantSysNo:1394,//配置企业编号测试
   },
   onLoad: function (options) {
     wx.showLoading({
@@ -42,14 +43,15 @@ Page({
     app.watch('unreadcount',this.feedback);
     app.watch('messageList', this.messageBack);
     let width = wx.getSystemInfoSync().screenWidth;
-    
+
+    console.log(wx.getStorageSync(constants.MerchantSysNo))
 
     // 浏览他人名片
     let targetUserId = options.targetKey
-    let Key = wx.getStorageSync(constants.UNIQUE_KEY);//这是用户自己的ID
+    let key = wx.getStorageSync(constants.UNIQUE_KEY);//这是用户自己的ID
     let Info = wx.getStorageSync(constants.USERINFO);//用户的基本信息表
-    // console.log(targetUserId)//undefined
-    // console.log(this.data.targetUserId, Key, Info,this.data.avatar)
+    console.log(targetUserId)//undefined
+    // console.log(Info)
     if (targetUserId) {
       this.setData({
         targetUserId: targetUserId,
@@ -57,19 +59,23 @@ Page({
     }
     
     // 这是后面新加的判定，如果自己有账号，并且自己的资料已经完善，进来的时候就直接进入自己的界面
-    else if (!targetUserId&&Key&&Info){
-      // console.log(1111)
-      this.setData({
-        targetUserId: Key,
-        buttonOpenTypeGetUserInfoShow: false,
-        buttonOpenTypeGetPhoneNumberShow: false,
-        buttonOpenTypeDefaultShow: true,
-      })
-    }
     else{
-      this.setData({
-        targetUserId: this.data.targetUserId,
-      })
+      if (Info){
+        // console.log(444444)
+        // console.log(key)
+        this.setData({
+          targetUserId: key,
+          buttonOpenTypeGetUserInfoShow: false,
+          buttonOpenTypeGetPhoneNumberShow: false,
+          buttonOpenTypeDefaultShow: true,
+        })
+      }
+      // this.setData({
+      //   targetUserId: Key,
+      //   buttonOpenTypeGetUserInfoShow: false,
+      //   buttonOpenTypeGetPhoneNumberShow: false,
+      //   buttonOpenTypeDefaultShow: true,
+      // })
     }
 
     let myInfo = wx.getStorageSync(constants.USERINFO);
@@ -81,20 +87,24 @@ Page({
 
     // 这是后面加的获取用户的信息的查询
     if (uniqueKey != ''){
-      remote.getUserInformation(uniqueKey).then(res => {
-        console.log(res.data.HeadPortraitUrl)
+      // remote.getUserInformation(uniqueKey).then(res => {
+      remote.getUserInformation(uniqueKey, this.data.merchantSysNo).then(res => {
+        // console.log(res.data.HeadPortraitUrl)
         let leftPortrait = res.data.HeadPortraitUrl
         leftPortrait = leftPortrait.split('//')[1]
-        leftPortrait = leftPortrait.split('/')[0]
-        if (leftPortrait == 'wx.qlogo.cn' ){
-          this.setData({
-            avatar: res.data.HeadPortraitUrl,  //这是左上角的头像
-          })
-        }else{
-          this.setData({
+        if (leftPortrait){
+          leftPortrait = leftPortrait.split('/')[0]
+          if (leftPortrait == 'wx.qlogo.cn') {
+            this.setData({
+              avatar: res.data.HeadPortraitUrl,  //这是左上角的头像
+            })
+          } else {
+            this.setData({
               avatar: 'https://www.xintui.xin:8058' + res.data.HeadPortraitUrl,  //这是没有前缀的头像设置左上角的头像
-          })
+            })
+          }
         }
+
         this.setData({
           AName: res.data.Name,                    
         })
@@ -146,13 +156,13 @@ Page({
         that.setData({
           authorizationShow: true,
         })
-      }, 8000, () => {//在进入名片的时候触发这个定时器
+      }, 6000, () => {//在进入名片的时候触发这个定时器
         clearTimeout(msgSet);
       })
     }
 
   },
-  // 是否授权
+  // 是否开启授权弹窗
   isAuthorizationShow:function(e){
     this.setData({
       authorizationShow: false,
@@ -200,7 +210,7 @@ Page({
       homeLoading: !loading
     })
   },
-  addRecords(time, type, desc, phone) {
+  addRecords(time, type, desc, phone, merchantSysNo) {
     if (this.data.uniqueKey == this.data.targetUserId) {
       return;
     }
@@ -213,21 +223,35 @@ Page({
       InUserSysNo: this.data.uniqueKey,
       Description: desc,
       TimeSysNo: 0,
-      Phone: phone
+      Phone: phone,
+      MerchantSysNo: this.data.merchantSysNo//新加的
     });
   },
-  createCard(uniqueKey, avatar, name) {
+  // 以前的代码
+    // createCard(uniqueKey, avatar, name) {
+    //   return remote.createBusinessCard({
+    //     HeadPortrait: avatar,
+    //     BusinessCardName: name,
+    //     Telephone: '',
+    //     SysNo: uniqueKey,
+    //     CompanyName: ''
+    //   });
+    // },
+  createCard(uniqueKey, avatar, name, merchantSysNo) {
     return remote.createBusinessCard({
       HeadPortrait: avatar,
       BusinessCardName: name,
       Telephone: '',
       SysNo: uniqueKey,
-      CompanyName: ''
+      CompanyName: '',
+      MerchantSysNo: merchantSysNo
     });
   },
   remotegetInfo(uniqueKey) {
     let that = this;
-    remote.getCardInfo(uniqueKey).then(res => {
+    console.log(uniqueKey,"这是我想要的ID吗？")
+    // remote.getCardInfo(uniqueKey).then(res => {
+    remote.getCardInfo(uniqueKey, that.data.merchantSysNo).then(res => {
       app.globalData.userInfo = res.data;
       res.data.HeadPortraitUrl = image(res.data.HeadPortraitUrl)
       that.setData({
@@ -238,7 +262,7 @@ Page({
         uniqueKey: uniqueKey
       }, () => {
         wx.setStorageSync(constants.USERINFO, that.data.myInfo);
-        // console.log("登录IM")
+        console.log("登录IM")
         // 登录im
         // 一定要先保存用户信息到缓存，然后再登录，因为im登录中要更新用户信息，
         // 没办法，后面啥都没有做，只能出此下策，后期思考更好的解决方式；
@@ -274,23 +298,33 @@ Page({
       this.setData({
         translentAnimation: true,
       });
+      // console.log(this.data.merchantSysNo)
       let promise = new Promise((resolve, reject) => {
         // 用户授权
         userSetting('scope.userInfo', true).then(res => {
           // 微信登录
           login(res.userInfo).then(res => {
-            // console.log("微信登录", res)
+            console.log("微信登录", res)
+            // 新加的企业编号
+            res.MerchantSysNo = that.data.merchantSysNo //新加需求，要添加企业编号
+            wx.setStorageSync(constants.MerchantSysNo, res.MerchantSysNo)//新加需求，要添加企业编号,将企业编号存在本地存储中
+            // console.log(res)
             let avatar = res.HeadPortraitUrl,
                   name = res.WX;
             // 后台登录
             remote.login(res).then(res => {
-              // console.log("后台登录", res)
+              console.log("后台登录", res)
               wx.setStorageSync(constants.UNIQUE_KEY, res.data);
               let uniqueKey = res.data
               let app = getApp();
               app.globalData.uniqueKey = uniqueKey;
+
+
               // 验证用户是否有名片
-              remote.checkCard(res.data).then(res => {
+              let merchantSysNo = that.data.merchantSysNo //新加需求，要添加企业编号
+
+
+              remote.checkCard(res.data, merchantSysNo).then(res => {
                 if (res.success) {
                   // 查询成功有名片就让按钮直接变为默认情况，可以直接触发事件
                   that.setData({
@@ -303,7 +337,7 @@ Page({
                   wx.navigateTo({
 
                     // url: `./zone/edit/profile/index?noCard=true&avatar=${avatar}&name=${name}`,//这个是跳转到创建名片页（这是以前的路由导航）                
-                    url: `./index?avatar=${avatar}?buttonOpenTypeGetPhoneNumberShow=true?buttonOpenTypeGetUserInfoShow=false`,
+                    url: `./index?avatar=${avatar}?targetId=${that.data.targetId}`,
 
                   })
                   // that.createCard(uniqueKey, avatar, name).then(res => {
@@ -351,7 +385,8 @@ Page({
           targetUserId: uniqueKey
         });
         if (!this.data.myInfo) {
-          remote.getOriginWxInfo(this.data.uniqueKey).then(res => {
+          // remote.getOriginWxInfo(this.data.uniqueKey).then(res => {
+          remote.getOriginWxInfo(this.data.uniqueKey,this.data.merchantSysNo).then(res => {
             wx.navigateTo({
               url: `./zone/edit/profile/index?noCard=true&avatar=${res.data.HeadPortraitUrl}&name=${res.data.WX}`,
             })
@@ -389,20 +424,28 @@ Page({
   // 分享名片
   shareCard(res) {
     let that = this;
-    that.setData({
-      buttonOpenTypeDefaultShow: true,
-      buttonOpenTypeGetPhoneNumberShow: false,
-      buttonOpenTypeGetUserInfoShow: false,
-    })
+    // that.setData({
+    //   buttonOpenTypeDefaultShow: true,
+    //   buttonOpenTypeGetPhoneNumberShow: false,
+    //   buttonOpenTypeGetUserInfoShow: false,
+    // })
     let result = this.getUserInfo(res)
     // console.log(result)
-    // console.log(res)
+    console.log(res)
     if (result == -1) {
       // // 在用户只授权了获取自己的头像和微信名的时候点击分享名片要先进行一次获取电话号码的权限，用来创建初始化名片
       that.storagePhone(res)
-      this.setData({
-        showAction: true
-      })
+      console.log(that.data.buttonOpenTypeGetPhoneNumberShow)
+      if (!that.data.buttonOpenTypeGetPhoneNumberShow){
+        this.setData({
+          showAction: true
+        })
+      }
+
+      
+      // this.setData({
+      //   showAction: true
+      // })
     }
   },
   shareCards(res) {
@@ -420,7 +463,8 @@ Page({
     if (res.detail.errMsg.split(':')[1] == 'ok') {
       that.checkSession(sessionData).then(res => {
          // 这是后面加的获取用户的信息的查询
-        remote.getUserInformation(that.data.uniqueKey).then(res => {
+        // remote.getUserInformation(that.data.uniqueKey).then(res => {
+        remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
           that.setData({
             AName: res.data.Name,
           })
@@ -428,7 +472,8 @@ Page({
         // console.log(res.encryptedData)
         // console.log(res.iV)
         // console.log(that.data.uniqueKey)
-        remote.getPhone(res.encryptedData, res.iV, that.data.uniqueKey).then(res => {
+        // , that.data.merchantSysNo是新加的商品编号
+        remote.getPhone(res.encryptedData, res.iV, that.data.uniqueKey, that.data.merchantSysNo).then(res => {
           // console.log(res)
           wx.addPhoneContact({
             firstName: userInfo.Name,
@@ -445,7 +490,7 @@ Page({
           })
           // console.log(that.data.userPhone, that.data.targetUserId)
           // 这是后面加的把电话存入到后台
-          this.createCard(that.data.uniqueKey, this.data.avatar, this.data.AName, that.data.userPhone).then(res => {
+          this.createCard(that.data.uniqueKey, this.data.avatar, this.data.AName, that.data.userPhone, that.data.merchantSysNo).then(res => {
             // console.log(res)
             if (res.message == '名片已经存在！'){
               // console.log(9999999)
@@ -455,8 +500,10 @@ Page({
                 buttonOpenTypeDefaultShow: true,
               })
             }
-            remote.getCardInfo(that.data.uniqueKey).then(res => {
+            // remote.getCardInfo(that.data.uniqueKey).then(res => {
+            remote.getCardInfo(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
               wx.setStorageSync(constants.USERINFO, res.data);
+              console.log(that.data.targetUserId)
               wx.navigateTo({
                 url: `./index?targetUserId=${that.data.targetUserId}`,
               })
@@ -474,7 +521,8 @@ Page({
           })
 
           let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}保存了您的号码，他的电话是--->${JSON.parse(res.data).purePhoneNumber}<,快回拨过去，促成交易!`;
-          that.addRecords(today(), 9, desc, 1);
+          // that.addRecords(today(), 9, desc, 1);
+          that.addRecords(today(), 9, desc, 1, that.data.merchantSysNo);
           that.loading()
         })
       })
@@ -505,18 +553,20 @@ Page({
       // console.log(that.data.myInfo.Telephone)
       let myPhone = that.data.myInfo.Telephone;
       let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}保存了您的号码，他的电话是--->${myPhone}<,快回拨过去，促成交易!`;
-      that.addRecords(today(), 9, desc, 1);
+      // that.addRecords(today(), 9, desc, 1);
+      that.addRecords(today(), 9, desc, 1, that.data.merchantSysNo);
       that.loading()
     })
   },
   // 创建名片
-  createCard(uniqueKey, avatar, name, phone) {
+  createCard(uniqueKey, avatar, name, phone, merchantSysNo) {
     return remote.createBusinessCard({
       HeadPortrait: avatar,
       BusinessCardName: name,
       Telephone: phone,
       SysNo: uniqueKey,
-      CompanyName: ''
+      CompanyName: '',
+      MerchantSysNo: merchantSysNo
     });
   }, 
   // 检查session
@@ -532,6 +582,9 @@ Page({
         },
         fail: function () {
           let userInfo = that.data.userInfo
+          // 新加的企业编号
+          userInfo.MerchantSysNo = that.data.merchantSysNo //新加需求，要添加企业编号
+
           login(userInfo).then(res => {
             remote.login(res).then(res => {
               resolve({
@@ -549,38 +602,48 @@ Page({
   storagePhone(res){
     let sessionData = res
     let that = this
-    // console.log( sessionData )
-    // console.log( that.data.uniqueKey )
-    // console.log(sessionData.type)
+    // console.log(sessionData)
     if (res.detail.errMsg.split(':')[1] == 'ok') {
       that.checkSession(sessionData).then(res => {
         // 这是后面加的获取用户的信息的查询
-        remote.getUserInformation(that.data.uniqueKey).then(res => {
+        // remote.getUserInformation(that.data.uniqueKey).then(res => {
+        remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
           that.setData({
             AName: res.data.Name,
           })
         })
-        // console.log(res.encryptedData)
-        // console.log(res.iV)
-        // console.log(that.data.uniqueKey)
-        remote.getPhone(res.encryptedData, res.iV, that.data.uniqueKey).then(res => {
+
+        // that.data.merchantSysNo是新加的商品编号
+        remote.getPhone(res.encryptedData, res.iV, that.data.uniqueKey, that.data.merchantSysNo).then(res => {
           // console.log(res)
+          if (res.message == "获取成功！"){
             that.setData({
               userPhone: JSON.parse(res.data).purePhoneNumber,
+              buttonOpenTypeDefaultShow: true,
+              buttonOpenTypeGetPhoneNumberShow: false,
+              buttonOpenTypeGetUserInfoShow: false,
             })
+          }
           // console.log(that.data.userPhone)
           // 这是后面加的把电话存入到后台
-          this.createCard(that.data.uniqueKey, this.data.avatar, this.data.AName, that.data.userPhone).then(res => {
+          // this.createCard(that.data.uniqueKey, this.data.avatar, this.data.AName, that.data.userPhone).then(res => {
+          this.createCard(that.data.uniqueKey, this.data.avatar, this.data.AName, that.data.userPhone, that.data.merchantSysNo).then(res => {
             // console.log(res)
-            remote.getCardInfo(that.data.uniqueKey).then(res => {
+            remote.getCardInfo(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
               wx.setStorageSync(constants.USERINFO, res.data);
-              this.refresh()
+              this.refresh()//刷新页面
               // wx.navigateTo({
-              //   url: `./index`,
+              //   url: `./index?targetId=${that.data.targetId}`,
               // })
             })
           })
         })
+      })
+    }else{
+      that.setData({
+        buttonOpenTypeDefaultShow: false,
+        buttonOpenTypeGetPhoneNumberShow: true,
+        buttonOpenTypeGetUserInfoShow: false,
       })
     }
   },
@@ -591,31 +654,63 @@ Page({
     let result = this.getUserInfo(res);
     let that = this;
     that.storagePhone(res)
-    if (result == -1) {
-      wx.makePhoneCall({
-        phoneNumber: res.currentTarget.dataset.phone,
-        success: function () {
-          // 这是后面加的获取用户的信息的查询
-          remote.getUserInformation(that.data.uniqueKey).then(res => {
-            that.setData({
-              AName: res.data.Name,
-              buttonOpenTypeDefaultShow: true,
-              buttonOpenTypeGetPhoneNumberShow:false,
-              buttonOpenTypeGetUserInfoShow: false,
+    if (!that.data.buttonOpenTypeGetPhoneNumberShow){
+      if (result == -1) {
+        wx.makePhoneCall({
+          phoneNumber: res.currentTarget.dataset.phone,
+          success: function () {
+            // 这是后面加的获取用户的信息的查询
+            // remote.getUserInformation(that.data.uniqueKey).then(res => {
+            remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
+              that.setData({
+                AName: res.data.Name,
+              })
             })
-          })
 
-          let myPhone = that.data.myInfo.Telephone;
-          let desc = '';
-          if (myPhone) {
-            desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，他的电话是--->${myPhone}<,快回拨过去，促成交易!`;
-          } else {
-            desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，注意保存TA的号码。`
+            let myPhone = that.data.myInfo.Telephone;
+            let desc = '';
+            if (myPhone) {
+              desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，他的电话是--->${myPhone}<,快回拨过去，促成交易!`;
+            } else {
+              desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，注意保存TA的号码。`
+            }
+            // that.addRecords(today(), 8, desc, myPhone ? 1 : 0);
+            that.addRecords(today(), 8, desc, myPhone ? 1 : 0, that.data.merchantSysNo);
+          },
+          fail: function () {
+            console.log("打电话失败")
           }
-          that.addRecords(today(), 8, desc, myPhone ? 1 : 0);
-        }
-      })
+        })
+      }
     }
+
+    // if (result == -1) {
+    //   wx.makePhoneCall({
+    //     phoneNumber: res.currentTarget.dataset.phone,
+    //     success: function () {
+    //       // 这是后面加的获取用户的信息的查询
+    //       // remote.getUserInformation(that.data.uniqueKey).then(res => {
+    //       remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
+    //         that.setData({
+    //           AName: res.data.Name,
+    //         })
+    //       })
+
+    //       let myPhone = that.data.myInfo.Telephone;
+    //       let desc = '';
+    //       if (myPhone) {
+    //         desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，他的电话是--->${myPhone}<,快回拨过去，促成交易!`;
+    //       } else {
+    //         desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，注意保存TA的号码。`
+    //       }
+    //       // that.addRecords(today(), 8, desc, myPhone ? 1 : 0);
+    //       that.addRecords(today(), 8, desc, myPhone ? 1 : 0, that.data.merchantSysNo);
+    //     },
+    //     fail:function(){
+    //       console.log("打电话失败")
+    //     }
+    //   })
+    // }
   },
   // 有名片拨打电话
   callPhone(res){
@@ -625,7 +720,8 @@ Page({
       phoneNumber: res.currentTarget.dataset.phone,
       success: function () {
         // 这是后面加的获取用户的信息的查询
-        remote.getUserInformation(that.data.uniqueKey).then(res => {
+        // remote.getUserInformation(that.data.uniqueKey).then(res => {
+        remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
           that.setData({
             AName: res.data.Name
           })
@@ -638,7 +734,8 @@ Page({
         } else {
           desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}拨打了你的电话，注意保存TA的号码。`
         }
-        that.addRecords(today(), 8, desc, myPhone ? 1 : 0);
+        // that.addRecords(today(), 8, desc, myPhone ? 1 : 0);
+        that.addRecords(today(), 8, desc, myPhone ? 1 : 0, that.data.merchantSysNo);
       }
     })
   },
@@ -646,36 +743,42 @@ Page({
   beMyWechatFriend(res) {
     let result = this.getUserInfo(res);
     let that = this;
-    that.setData({
-      buttonOpenTypeDefaultShow: true,
-      buttonOpenTypeGetPhoneNumberShow: false,
-      buttonOpenTypeGetUserInfoShow: false,
-    })
-    that.storagePhone(res)
-    if (result == -1) {
-      wx.setClipboardData({
-        data: res.currentTarget.dataset.weichat,
-        success: function () {
-          wx.showToast({
-            title: '已复制',
-            icon: 'none',
-            success: function() {
+    // that.setData({
+    //   buttonOpenTypeDefaultShow: true,
+    //   buttonOpenTypeGetPhoneNumberShow: false,
+    //   buttonOpenTypeGetUserInfoShow: false,
+    // })
+    that.storagePhone(res) 
+    if (!that.data.buttonOpenTypeGetPhoneNumberShow) {
+      if (result == -1) {
+        wx.setClipboardData({
+          data: res.currentTarget.dataset.weichat,
+          success: function () {
+            wx.showToast({
+              title: '已复制',
+              icon: 'none',
+              success: function () {
 
-              // 这是后面加的获取用户的信息的查询
-              remote.getUserInformation(that.data.uniqueKey).then(res => {
-                // console.log(res.data.Name)
-                that.setData({
-                  AName: res.data.Name,
+                // 这是后面加的获取用户的信息的查询
+                // remote.getUserInformation(that.data.uniqueKey).then(res => {
+                remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
+                  // console.log(res.data.Name)
+                  that.setData({
+                    AName: res.data.Name,
+                  })
                 })
-              })
 
-              let desc = `${that.data.myInfo.Name || that.data.myInfo.WX ||that.data.AName}已经复制了您的微信号码,请注意通过TA的好友请求哟！`;
-              that.addRecords(today(), 11, desc, 0);
-            }
-          })
-        }
-      })
+                let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}已经复制了您的微信号码,请注意通过TA的好友请求哟！`;
+                // that.addRecords(today(), 11, desc, 0);
+                that.addRecords(today(), 11, desc, 0, that.data.merchantSysNo);
+              }
+            })
+          }
+        })
+      }
     }
+
+
   },
   // 有名片添加微信好友
   addBeMyWechatFriend(res){
@@ -689,14 +792,16 @@ Page({
           icon: 'none',
           success: function () {
             // 这是后面加的获取用户的信息的查询
-            remote.getUserInformation(that.data.uniqueKey).then(res => {
+            // remote.getUserInformation(that.data.uniqueKey).then(res => {
+            remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
               // console.log(res.data.Name)
               that.setData({
                 AName: res.data.Name
               })
             })
             let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}已经复制了您的微信号码,请注意通过TA的好友请求哟！`;
-            that.addRecords(today(), 11, desc, 0);
+            // that.addRecords(today(), 11, desc, 0);
+            that.addRecords(today(), 11, desc, 0, that.data.merchantSysNo);
           }
         })
       }
@@ -705,28 +810,32 @@ Page({
   // 定位
   useAddress(res) {
     let that = this
-    that.setData({
-      buttonOpenTypeDefaultShow: true,
-      buttonOpenTypeGetPhoneNumberShow: false,
-      buttonOpenTypeGetUserInfoShow: false,
-    })
+    // that.setData({
+    //   buttonOpenTypeDefaultShow: true,
+    //   buttonOpenTypeGetPhoneNumberShow: false,
+    //   buttonOpenTypeGetUserInfoShow: false,
+    // })
     let result = this.getUserInfo(res);
     that.storagePhone(res)
-    if (result == -1) {
-      let userInfo = this.data.userInfo;
-      if (userInfo.Latitude && userInfo.Longitude) {
-        wx.openLocation({
-          latitude: parseFloat(userInfo.Latitude),
-          longitude: parseFloat(userInfo.Longitude),
-          address: userInfo.Address
-        })
-      } else {
-        wx.showToast({
-          title: '未定位',
-          icon: 'none'
-        })
+    if (!that.data.buttonOpenTypeGetPhoneNumberShow){
+      if (result == -1) {
+        let userInfo = this.data.userInfo;
+        if (userInfo.Latitude && userInfo.Longitude) {
+          wx.openLocation({
+            latitude: parseFloat(userInfo.Latitude),
+            longitude: parseFloat(userInfo.Longitude),
+            address: userInfo.Address
+          })
+        } else {
+          wx.showToast({
+            title: '未定位',
+            icon: 'none'
+          })
+        }
       }
     }
+
+
   },
   // 有名片定位
   addUseAddress(res) {
@@ -755,6 +864,10 @@ Page({
       company: userInfo.CompanyName,
       uniqueKey: this.data.targetUserId
     }
+
+    console.log(userInfo)
+    console.log(params)
+
     params = JSON.stringify(params)
     wx.navigateTo({
       url: `./share/share?details=${ params }`,
@@ -768,7 +881,8 @@ Page({
       let doAppreciate = this.data.doAppreciate;
       if (!doAppreciate) {
         that.loading();
-        remote.doAppreciateCard(this.data.targetUserId, this.data.uniqueKey, 0).then(res => {
+        // remote.doAppreciateCard(this.data.targetUserId, this.data.uniqueKey, 0).then(res => {//, that.data.merchantSysNo新加的商品编号
+        remote.doAppreciateCard(this.data.targetUserId, this.data.uniqueKey, 0, this.data.merchantSysNo).then(res => {
           if (res.success) {
             let userInfo = that.data.userInfo;
             userInfo.PointRatio = userInfo.PointRatio + 1;
@@ -779,7 +893,8 @@ Page({
             }, () => {
 
               // 这是后面加的获取用户的信息的查询
-              remote.getUserInformation(that.data.uniqueKey).then(res => {
+              // remote.getUserInformation(that.data.uniqueKey).then(res => {
+              remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
                 // console.log(res.data.Name)
                 that.setData({
                   AName: res.data.Name
@@ -788,7 +903,8 @@ Page({
               })
 
               let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}给您的名片点了赞，快去瞧瞧吧！`;
-              that.addRecords(today(), 14, desc, 0);
+              // that.addRecords(today(), 14, desc, 0);
+              that.addRecords(today(), 14, desc, 0, that.data.merchantSysNo);
             })
           }
         })
@@ -805,14 +921,18 @@ Page({
   collectionIt(res) {
     let result = this.getUserInfo(res);
     let that = this;
+    
     if (result == -1) {
       if (this.data.uniqueKey != this.data.targetUserId && !this.data.doCollecte) {
         let userInfo = this.data.userInfo;
+        console.log(this.data.merchantSysNo)
         remote.doCollecteCard({
           UserSysNo: this.data.targetUserId,
           InUserSysNo: this.data.uniqueKey,
-          BusinessCardSysNo: userInfo.SysNo
+          BusinessCardSysNo: userInfo.SysNo,
+          MerchantSysNo: this.data.merchantSysNo //新加的企业编号
         }).then( res => {
+          console.log(res)
           if (res.success) {
             that.setData({
               doCollecte: true,
@@ -820,14 +940,16 @@ Page({
             }, () => {
 
               // 这是后面加的获取用户的信息的查询
-              remote.getUserInformation(that.data.uniqueKey).then(res => {
+              // remote.getUserInformation(that.data.uniqueKey).then(res => {
+              remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
                 that.setData({
                   AName: res.data.Name
                 })
               })
 
               let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}已经收藏了您的名片,哇，一单大的生意快要上门啦！`;
-              that.addRecords(today(), 12, desc, 0);
+              // that.addRecords(today(), 12, desc, 0);
+              that.addRecords(today(), 12, desc, 0, that.data.merchantSysNo);
             })
           } else {
             wx.showToast({
@@ -853,7 +975,8 @@ Page({
   // 查看是否收藏
   doCollectionDetails() {
     let that = this;
-    remote.doCollectionStatus(this.data.targetUserId, this.data.uniqueKey, this.data.userInfo.SysNo).then(res => {
+    // , this.data.merchantSysNo是新加的企业编号
+    remote.doCollectionStatus(this.data.targetUserId, this.data.uniqueKey, this.data.userInfo.SysNo, this.data.merchantSysNo).then(res => {
       that.setData({
         doCollecte: res.success,
         collectionId: res.data
@@ -888,7 +1011,8 @@ Page({
   // 查询是否已经对当前名片点过赞
   appreciateDetails() {
     let that = this
-    remote.appreciateUserStatus(this.data.uniqueKey, this.data.targetUserId, 0).then(res => {
+    // remote.appreciateUserStatus(this.data.uniqueKey, this.data.targetUserId, 0).then(res => {
+    remote.appreciateUserStatus(this.data.uniqueKey, this.data.targetUserId, 0, this.data.merchantSysNo).then(res => {
       that.setData({
         doAppreciate: res.success
       })
@@ -910,7 +1034,7 @@ Page({
       if (flag == 'homemate') {
         let homemate = this.data.homemate;
         if (homemate) {
-          remote.deleteFriends(this.data.uniqueKey, this.data.targetUserId, 1).then(res => {
+          remote.deleteFriends(this.data.uniqueKey, this.data.targetUserId, 1, this.data.merchantSysNo).then(res => {
             that.setData({
               homemate: false,
               showMateBanner: false,
@@ -921,7 +1045,8 @@ Page({
           remote.createFrinds({
             UserSysNo: this.data.targetUserId,
             Type: 1,
-            InUserSysNo: this.data.uniqueKey
+            InUserSysNo: this.data.uniqueKey,
+            MerchantSysNo:this.data.merchantSysNo//新加的商页编号
           }).then(res => {
             that.loading();
             that.setData({
@@ -936,7 +1061,7 @@ Page({
       if (flag == 'schoolmate') {
         let schoolmate = this.data.schoolmate;
         if (schoolmate) {
-          remote.deleteFriends(this.data.uniqueKey, this.data.targetUserId, 2).then(res => {
+          remote.deleteFriends(this.data.uniqueKey, this.data.targetUserId, 2, this.data.merchantSysNo).then(res => {
             that.setData({
               schoolmate: false,
               showMateBanner: false,
@@ -948,7 +1073,8 @@ Page({
           remote.createFrinds({
             UserSysNo: this.data.targetUserId,
             Type: 2,
-            InUserSysNo: this.data.uniqueKey
+            InUserSysNo: this.data.uniqueKey,
+            MerchantSysNo: this.data.merchantSysNo//新加的商页编号
           }).then(res => {
             that.setData({
               schoolmate: true,
@@ -966,12 +1092,12 @@ Page({
   // 是否已经点过是同乡/是校友
   checkSamePlace() {
     let that = this;
-    remote.checkSamePlace(that.data.targetUserId, that.data.uniqueKey, 1).then(res => {
+    remote.checkSamePlace(that.data.targetUserId, that.data.uniqueKey, 1,that.data.merchantSysNo).then(res => {
       that.setData({
         homemate: res.data != null
       })
     })
-    remote.checkSamePlace(that.data.targetUserId, that.data.uniqueKey, 2).then(res => {
+    remote.checkSamePlace(that.data.targetUserId, that.data.uniqueKey, 2,that.data.merchantSysNo).then(res => {
       that.setData({
         schoolmate: res.data != null
       })
@@ -980,7 +1106,8 @@ Page({
   // 获取微信用户信息
   getWxUserInfo(id) {
     let that = this;
-    remote.getOriginWxInfo(id).then(res => {
+    // remote.getOriginWxInfo(id).then(res => {
+    remote.getOriginWxInfo(id, this.data.merchantSysNo).then(res => {
       that.setData({
         wxUserInfo: res.data
       }, () => {
@@ -1004,14 +1131,16 @@ Page({
       if (this.data.uniqueKey != -1 && this.data.uniqueKey != this.data.targetUserId) {
 
         // 这是后面加的获取用户的信息的查询
-        remote.getUserInformation(this.data.uniqueKey).then(res => {
+        // remote.getUserInformation(this.data.uniqueKey).then(res => {
+        remote.getUserInformation(this.data.uniqueKey, this.data.merchantSysNo).then(res => {
           this.setData({
             AName: res.data.Name
           })
         })
 
         let desc = `${this.data.myInfo.Name || this.data.myInfo.WX ||this.data.AName}播放了您的视频`
-        this.addRecords(today(), 3, desc, 0);
+        // this.addRecords(today(), 3, desc, 0);
+        this.addRecords(today(), 3, desc, 0, this.data.merchantSysNo);
       }
     } else {
       let currentVideoContextPrev = wx.createVideoContext(curId, this)
@@ -1100,7 +1229,8 @@ Page({
     }
 
     // 这是后面加的获取用户的信息的查询
-    remote.getUserInformation(this.data.uniqueKey).then(res => {
+    // remote.getUserInformation(this.data.uniqueKey).then(res => {
+    remote.getUserInformation(this.data.uniqueKey, this.data.merchantSysNo).then(res => {
       that.setData({
         AName: res.data.Name
       })
@@ -1119,7 +1249,8 @@ Page({
           that.setData({
             showMateBanner: false
           })
-          that.addRecords(today(), 10, desc, 0);
+          // that.addRecords(today(), 10, desc, 0);
+          that.addRecords(today(), 10, desc, 0, that.data.merchantSysNo);
           wx.hideLoading();
         }
       })
@@ -1139,7 +1270,8 @@ Page({
             that.setData({
               showMateBanner: false
             })
-            that.addRecords(today(), 10, desc, 0);
+            // that.addRecords(today(), 10, desc, 0);
+            that.addRecords(today(), 10, desc, 0, that.data.merchantSysNo);
             wx.hideLoading();
           }
         })
@@ -1160,13 +1292,13 @@ Page({
   likeCurComment(res) {
     let that = this;
     let result = this.getUserInfo(res);
-    that.storagePhone(res)
+
     if (result == -1) {
       let index = res.currentTarget.dataset.index;
       let comments = this.data.comments;
       let cur = comments[index];
       if (cur.PointRatioStatus != 1 && !this.data.homeLoading) {
-        remote.updateLiked(this.data.uniqueKey, this.data.targetUserId, cur.SysNo).then(res => {
+        remote.updateLiked(this.data.uniqueKey, this.data.targetUserId, cur.SysNo, this.data.merchantSysNo).then(res => {
           if (res.success) {
             cur.PointRatio += 1;
             cur.PointRatioStatus = 1;
@@ -1197,19 +1329,22 @@ Page({
   // 留言
   sendComment(res) {
     let that = this
-    that.setData({
-      buttonOpenTypeDefaultShow: true,
-      buttonOpenTypeGetPhoneNumberShow: false,
-      buttonOpenTypeGetUserInfoShow: false,
-    })
+    // that.setData({
+    //   buttonOpenTypeDefaultShow: true,
+    //   buttonOpenTypeGetPhoneNumberShow: false,
+    //   buttonOpenTypeGetUserInfoShow: false,
+    // })
     let result = this.getUserInfo(res);
     that.storagePhone(res)
-    if (result == -1) {
-      let targetUserId = this.data.targetUserId;
-      wx.navigateTo({
-        url: `./words/index?targetUserId=${targetUserId}`,
-      })
+    if (!that.data.buttonOpenTypeGetPhoneNumberShow) {
+      if (result == -1) {
+        let targetUserId = this.data.targetUserId;
+        wx.navigateTo({
+          url: `./words/index?targetUserId=${targetUserId}`,
+        })
+      }
     }
+
   },
   // 有名片留言
   sendComments(res) {
@@ -1221,19 +1356,23 @@ Page({
   // 没有名片商品详情
   goodsDetails(res) {
     let that = this
-    that.setData({
-      buttonOpenTypeDefaultShow: true,
-      buttonOpenTypeGetPhoneNumberShow: false,
-      buttonOpenTypeGetUserInfoShow: false,
-    })
+    // that.setData({
+    //   buttonOpenTypeDefaultShow: true,
+    //   buttonOpenTypeGetPhoneNumberShow: false,
+    //   buttonOpenTypeGetUserInfoShow: false,
+    // })
     let result = this.getUserInfo(res);
     that.storagePhone(res)
-    if (result == -1) {
-      let index = res.currentTarget.dataset.index;
-      wx.navigateTo({
-        url: `./zone/goods/details/index?goodsId=${index}`,
-      })
+    if (!that.data.buttonOpenTypeGetPhoneNumberShow) {
+      if (result == -1) {
+        let index = res.currentTarget.dataset.index;
+        wx.navigateTo({
+          url: `./zone/goods/details/index?goodsId=${index}`,
+        })
+      }
     }
+
+
   },
   // 有名片商品详情
   addGoodsDetails(res) {
@@ -1258,7 +1397,8 @@ Page({
   getLabels() {
     let that = this;
     if (this.data.uniqueKey != -1) {
-      remote.getLabels(this.data.uniqueKey, this.data.targetUserId).then(res => {
+      // remote.getLabels(this.data.uniqueKey, this.data.targetUserId).then(res => {
+      remote.getLabels(this.data.uniqueKey, this.data.targetUserId, this.data.merchantSysNo).then(res => {
         that.setData({
           labels: res.data
         });
@@ -1278,7 +1418,8 @@ Page({
         remote.likeLabel({
           CardUserSysNo: this.data.targetUserId,
           InUserSysNo: this.data.uniqueKey,
-          LablesSysNo: cur.LablesSysNo
+          LablesSysNo: cur.LablesSysNo,
+          MerchantSysNo: this.data.merchantSysNo  //新加的
         }).then(res => {
           cur.Status = 1;
           cur.count += 1;
@@ -1305,12 +1446,13 @@ Page({
       pageSize: 3,
       currentPage: 1,
       sort: 'desc'
-    }).then(res => {
+    }, that.data.merchantSysNo).then(res => {
       let result = res.data.commentPointRatioList;
       if (result.length > 0) {
         for (let i = 0; i < result.length; i++) {
           // 看到这段是不是想笑，评论只给内容，不给用户基本信息的
-          remote.getOriginWxInfo(result[i].UserSysNo).then(res => {
+          // remote.getOriginWxInfo(result[i].UserSysNo).then(res => {
+          remote.getOriginWxInfo(result[i].UserSysNo, that.data.merchantSysNo).then(res => {
             let info = res.data;
             if (info) {
               result[i]['avatar'] = image(info.HeadPortraitUrl);
@@ -1330,12 +1472,14 @@ Page({
   },
   getProducts() {
     let that = this;
-    product.getProductList(this.data.targetUserId, 10, 1, "", {
+    product.getProductList(this.data.targetUserId, 10, 1, "", that.data.merchantSysNo, {
       pageSize: 6,
       currentPage: 1,
       sort: "desc"
     }).then(res => {
       let result = res.data;
+      // console.log(res)
+
       for (let i = 0; i < result.length; i++) {
         result[i].DefaultImage = image(result[i].DefaultImage);
       }
@@ -1382,7 +1526,8 @@ Page({
   onShareAppMessage() {
 
     let desc = `${this.data.myInfo.Name || this.data.myInfo.WX ||this.data.AName}将您的名片转发到TA的朋友中了，注意联系！`;
-    this.addRecords(today(), 7, desc, 0);
+    // this.addRecords(today(), 7, desc, 0);
+    this.addRecords(today(), 7, desc, 0, this.data.merchantSysNo);
     return {
       title: '我开通了新推名片，快来围观！',
       desc: '新零售，用心推！',
@@ -1400,14 +1545,16 @@ Page({
         })
 
         // // 这是后面加的获取用户的信息的查询
-        remote.getUserInformation(that.data.uniqueKey).then(res => {
+        // remote.getUserInformation(that.data.uniqueKey).then(res => {
+        remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
           that.setData({
             AName: res.data.Name
           })
         })
 
         desc = `${that.data.myInfo.Name || that.data.myInfo.WX ||that.data.AName}将您的名片转发到TA的朋友中了，注意联系！`;
-        that.addRecords(today(), 7, desc, 0);
+        // that.addRecords(today(), 7, desc, 0);
+        that.addRecords(today(), 7, desc, 0, that.data.merchantSysNo);
         break;
       case 2:
         this.getQRImage({
@@ -1423,14 +1570,16 @@ Page({
             }, () => {
 
               // // 这是后面加的获取用户的信息的查询
-              remote.getUserInformation(that.data.uniqueKey).then(res => {
+              // remote.getUserInformation(that.data.uniqueKey).then(res => {
+              remote.getUserInformation(that.data.uniqueKey, that.data.merchantSysNo).then(res => {
                 that.setData({
                   AName: res.data.Name
                 })
               })
 
               desc = `${that.data.myInfo.Name || that.data.myInfo.WX||that.data>AName}将您的名片二维码下载到手机上了，恭喜生意上门。`;
-              that.addRecords(today(), 7, desc, 0);
+              // that.addRecords(today(), 7, desc, 0);
+              that.addRecords(today(), 7, desc, 0, that.data.merchantSysNo);
             })
           }
         }).catch(err =>{
@@ -1469,14 +1618,16 @@ Page({
             }, () => {
 
               // // 这是后面加的获取用户的信息的查询
-              remote.getUserInformation(this.data.uniqueKey).then(res => {
+              // remote.getUserInformation(this.data.uniqueKey).then(res => {
+              remote.getUserInformation(this.data.uniqueKey, this.data.merchantSysNo).then(res => {
                 that.setData({
                   AName: res.data.Name
                 })
               })
 
               desc = `${that.data.myInfo.Name || that.data.myInfo.WX||that.data.AName}打开现场扫码，也许在帮你推广哟！`;
-              that.addRecords(today(), 7, desc, 0);
+              // that.addRecords(today(), 7, desc, 0);
+              that.addRecords(today(), 7, desc, 0, that.data.merchantSysNo);
             })
           }
         })
@@ -1490,7 +1641,8 @@ Page({
   // 获取浏览过的名片
   getSelfHistory() {
     let that = this;
-    remote.getSelfHistory(this.data.uniqueKey, {
+    // remote.getSelfHistory(this.data.uniqueKey, {
+    remote.getSelfHistory(this.data.uniqueKey, this.data.merchantSysNo,{
       pageSize: 20,
       currentPage: 1,
       sort: "desc"
@@ -1529,6 +1681,23 @@ Page({
           historyList: result,
           noHistory: false
         })
+        // console.log(that.data.historyList)
+        let list = that.data.historyList
+        for (let i = 0; i < list.length;i++){
+          let url = list[i].HeadPortraitUrl.split("https://")[1]
+          // console.log(url)
+          if (url == 'www.xintui.xin:8058'){
+            url = list[i].HeadPortraitUrl.split("www.xintui.xin:8058")[1]
+            list[i].HeadPortraitUrl = list[i].HeadPortraitUrl.split("www.xintui.xin:8058")[1]
+            // console.log(url)
+            // console.log(list[i].HeadPortraitUrl)
+          }
+          that.setData({
+            historyList: that.data.historyList
+          })
+          // url = url.substring(0, url.lastIndexOf('/'))
+          // console.log(url)
+        }
       } else {
         that.setData({
           noHistory: true
@@ -1539,6 +1708,7 @@ Page({
   historytap(event) {
     let index = event.currentTarget.dataset.index;
     let that = this;
+    console.log(index)
     this.setData({
       targetUserId: index,
       showHistoryModal: false
@@ -1574,7 +1744,8 @@ Page({
         navTitle: '个人中心'
       })
     }
-    remote.getCardInfo(targetUserId).then(res => {
+    // remote.getCardInfo(targetUserId).then(res => {
+    remote.getCardInfo(targetUserId, that.data.merchantSysNo).then(res => {
       if (res.success) {
         let videoList = res.data.VideoList;
         let picList = res.data.PictureList;
@@ -1608,6 +1779,22 @@ Page({
         result.VideoList = videoList;
         result.PictureList = picList;
         result.HeadPortraitUrl = image(result.HeadPortraitUrl);
+        let url = result.HeadPortraitUrl.split("https://www.xintui.xin:8058")[1]
+        if(url){
+          let newUrl = url.split('//')[0]
+          // let newUrl = url.substring(0, result.HeadPortraitUrl.lastIndexOf('//'))
+          // console.log(newUrl)
+          // console.log(url)
+          if (newUrl == 'https:') {
+            result.HeadPortraitUrl = url
+          }
+        }
+
+        // console.log(result.HeadPortraitUrl)
+        let newImg = result.HeadPortraitUrl.substring(0, result.HeadPortraitUrl.lastIndexOf('132'))
+        if (newImg) {
+          result.HeadPortraitUrl = newImg + '0'
+        }
         wx.getImageInfo({
           src: result.HeadPortraitUrl,
           fail: function (err) {
@@ -1631,7 +1818,8 @@ Page({
             translentAnimation: false
           })
           let desc = `${that.data.myInfo.Name || that.data.myInfo.WX || that.data.AName}浏览了您的名片。`;
-          that.addRecords(today(), 1, desc, 0);
+          // that.addRecords(today(), 1, desc, 0);
+          that.addRecords(today(), 1, desc, 0, that.data.merchantSysNo);
           wx.hideLoading();
         })
       }

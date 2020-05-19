@@ -2,7 +2,7 @@
 <form class="common-padding" bindsubmit="formSubmit">
 	<view class="cu-form-group">
 		<view class="title">品牌</view>
-		<input name="name" confirm-type="next" name="company" placeholder="必填" value="{{ form.company }}"></input>
+		<input name="name" confirm-type="next" name="company" placeholder="公司名称" value="{{ form.company }}"></input>
 	</view>
   <view class="cu-form-group">
 		<view class="title">行业</view>

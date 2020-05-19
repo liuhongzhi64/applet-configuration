@@ -517,7 +517,7 @@
     <!-- 我的企业 -->
     <view class="erys-index__content-box" wx:if="{{ userInfo.CompanyProfile }}">
       <view class="erys-index__content-title text-shadow">我的企业</view>
-      <view class="erys-index__content-title" style="border: none;">{{ userInfo.CompanyName }}</view>
+      <!-- <view class="erys-index__content-title" style="border: none;">{{ userInfo.CompanyName }}</view> -->
       <text space="nbsp" style="word-break:break-all;">{{ userInfo.CompanyProfile }}</text>
     </view>
     <!-- 我的视频 -->
@@ -549,7 +549,7 @@
 </view>
 <!-- 底部商标和版本 -->
 <view class="padding-xl" wx:if="{{ !translentAnimation }}">
-  <view class="text-center text-gray text-sm">新零售 · 用新推</view>
+  <view class="text-center text-gray text-sm">新零售 · 用心推</view>
   <!-- <view class="text-center text-gray text-sm">copyright@ chengdu taiping park infomation tech.ltd</view> -->
   <view class="text-center text-gray text-sm margin-top-sm">Version: {{ versionNum }}</view>
 </view>

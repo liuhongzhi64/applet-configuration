@@ -84,13 +84,18 @@ Page({
     this.setData({
       sendRequest: true
     }, () => {
+
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+
       remote.insertRelationship({
         Name: username,
         UserTelPhone: userTelphone,
         Status: 0,
         Type: 1,
         VipTelPhone: recommandTelphone,
-        InUserSysNo: this.data.uniqueKey
+        InUserSysNo: this.data.uniqueKey,
+        MerchantSysNo: merchantSysNo
       }).then(res => {
         that.setData({
           hadComplate: true,

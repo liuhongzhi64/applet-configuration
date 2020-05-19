@@ -10,7 +10,7 @@ Page({
     template: {},
     item: {},
     defualtImageWidth: 340,
-    curIndex: 0,
+    curIndex: 1,//以前是选择的0
     loading: true,
     currentSwiperIndex: 0,
     swiperHeight: 0
@@ -52,6 +52,10 @@ Page({
         if (that.data.uniqueKey == that.data.detail.MerchantSysNo) {
           return;
         }
+
+        // 从本地取企业编号然后再登录接口里传值
+        let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在69引用
+
         remote.insertRecords({
           CustomerSubject: that.data.detail.MerchantSysNo,
           VisitTime: today(),
@@ -61,7 +65,8 @@ Page({
           InUserSysNo: that.data.uniqueKey,
           Description: `${that.data.userInfo.Name}保存了您商品${that.data.detail.ProductName}的海报到相册。`,
           TimeSysNo: 0,
-          Phone: that.data.detail.SysNo
+          Phone: that.data.detail.SysNo,
+          MerchantSysNo:merchantSysNo
         })
       }
     })
@@ -108,6 +113,13 @@ Page({
       let companyName = userInfo['CompanyName'] || '成都太平园信息科技有限公公司';
       let deafaultImageWidth = this.data.deafaultImageWidth;
       let that = this;
+      // console.log(avatar,"图片的地址")
+      let imgUrl = avatar.substr(0,1)
+      if (imgUrl == '/'){
+        imgUrl = 'http://app-svc.lixiantuce.com:8054' + avatar
+        avatar = imgUrl
+      }
+      // console.log(avatar, "修改后的图片的地址")
       wx.getImageInfo({
         src: image(detail.DefaultImage),
         success: function (result) {

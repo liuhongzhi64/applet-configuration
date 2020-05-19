@@ -34,7 +34,8 @@ Page({
       currentPage: 1
     },
     more: true,
-    complate: false
+    complate: false,
+    merchantSysNo:0
   },
   onLoad: function (options) {
     wx.showLoading({
@@ -79,7 +80,9 @@ Page({
     let item = userGroup[index];
     let vip = this.data.vip;
     if (vip == null) {
-      remote.isPass(this.data.key).then(res => {
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+      remote.isPass(this.data.key, merchantSysNo).then(res => {
         wx.navigateTo({
           url: `../radar/check?hadSend=${res.success}&suggestPerson=${res.data}`,
           success() {
@@ -118,7 +121,9 @@ Page({
     } 
     else {
       // console.log(this.data)
-      remote.isPass(this.data.key).then(res => {
+      // 从本地取企业编号然后在接口里传值
+      let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+      remote.isPass(this.data.key, merchantSysNo).then(res => {
         wx.navigateTo({
           url: `../radar/check?hadSend=${res.success}&suggestPerson=${res.data}`,
           success() {
@@ -191,10 +196,19 @@ Page({
       this.init(index + 1, page);
     })
   },
+  
   init(index, page) {
     let key = this.data.key
     let _this = this;
-    remote.getMyRecords(0, key, '2019-11-01', today(), index, page).then(res => {
+
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在202引用
+    this.setData({
+      merchantSysNo: wx.getStorageSync(constants.MerchantSysNo)
+    })
+
+    // remote.getMyRecords(0, key, '2019-11-01', today(), index, page).then(res => {
+    remote.getMyRecords(0, key, '2019-11-01', today(), index, this.data.merchantSysNo, page).then(res => {
       let data = res.data
       for (let index = 0; index < data.length; index++) {
         if (data[index].HeadPortraitUrl.indexOf('https') == -1) {
@@ -222,7 +236,15 @@ Page({
     let key = this.data.key
     let _this = this;
     let array = this.data.checkBox
-    remote.getMyRecords(0, _this.data.key, today(), today(), 1, {
+    
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)//在236引用
+    this.setData({
+      merchantSysNo: wx.getStorageSync(constants.MerchantSysNo)
+    })
+    // console.log(_this.data.merchantSysNo)
+    // remote.getMyRecords(0, _this.data.key, today(), today(), 1, {
+    remote.getMyRecords(0, _this.data.key, today(), today(), 1, _this.data.merchantSysNo, {
       pageSize: 100,
       currentPage: 1,
       sort: 'desc'
@@ -230,7 +252,7 @@ Page({
       console.log(res)
       array[0]['count'] = res.totalCount
       array[1]['count'] = res.browsetotalCount
-      remote.getMyRecords(0, _this.data.key, '2019-11-01', today(), 1, {
+      remote.getMyRecords(0, _this.data.key, '2019-11-01', today(), 1, _this.data.merchantSysNo, {
         pageSize: 100,
         currentPage: 1,
         sort: 'desc'
@@ -244,7 +266,11 @@ Page({
   },
   initVip() {
     let that = this;
-    remote.getUserPackage(this.data.key).then(res => {
+
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+
+    remote.getUserPackage(this.data.key, merchantSysNo).then(res => {
       that.setData({
         vip: res.data
       })

@@ -18,6 +18,23 @@ Page({
       that.setData({
         messageList: res.messageList
       })
+      // console.log(this.data.messageList)
+      let list = this.data.messageList
+      for (let i = 0; i < list.length;i++){
+        let url = list[i].userProfile.avatar
+        let imgUrl = url.substr(0, 1)
+        if (imgUrl == '/') {
+          imgUrl = 'http://app-svc.lixiantuce.com:8054' + url
+          url = imgUrl
+          list[i].userProfile.avatar = url
+          
+        }
+        // console.log(url)
+        // console.log(list)
+      }
+      that.setData({
+        messageList: list
+      })
     })
     this.setData({
       uniqueKey: uniqueKey

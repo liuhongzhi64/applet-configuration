@@ -104,7 +104,11 @@ Page({
   },
   initVip() {
     let that = this;
-    remote.getUserPackage(this.data.uniqueKey).then(res => {
+
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+
+    remote.getUserPackage(this.data.uniqueKey, merchantSysNo).then(res => {
       that.setData({
         vip: res.data
       })
@@ -166,7 +170,12 @@ Page({
       return ;
     }
     let that = this;
-    product.getProductList(this.data.uniqueKey, saling, 2, name, page).then(res => {
+
+    // 从本地取企业编号然后在接口里传值
+    let configurationSysNo = wx.getStorageSync(constants.MerchantSysNo)
+    console.log(configurationSysNo)
+    product.getProductList(this.data.uniqueKey, saling, 2, name, configurationSysNo, page).then(res => {
+      console.log(res)
       let products = that.data.products;
       let newList = res.data;
       for (let i = 0; i < newList.length; i++) {
@@ -208,6 +217,7 @@ Page({
     if (event.currentTarget.dataset.index != undefined) {
       let index = event.currentTarget.dataset.index;
       let item = JSON.stringify(products[index]);
+      console.log(index,item)
       wx.navigateTo({
         url: `./edit/index?item=${item}`,
       })
@@ -471,13 +481,18 @@ Page({
       return false
     }
     let that = this;
+
+    // 从本地取企业编号然后在接口里传值
+    let merchantSysNo = wx.getStorageSync(constants.MerchantSysNo)
+
     remote.insertRelationship({
       Name: params.username,
       UserTelPhone: params.userTelephone,
       Status: 0,
       Type: 2,
       VipTelPhone: "",
-      InUserSysNo: uniqueKey
+      InUserSysNo: uniqueKey,
+      MerchantSysNo: merchantSysNo
     }).then(res => {
       if (res.success) {
         wx.showToast({
