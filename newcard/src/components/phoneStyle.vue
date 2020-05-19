@@ -81,11 +81,11 @@
                 // titleName:'',//联系电话名称
                 getPhone:'13194782515',//联系电话名称
                 backgroundColor: '',//背景默认颜色
-                titleColors:'',//标题颜色默认颜色
-                phoneColor:'',//号码默认颜色
+                titleColors:'#000',//标题颜色默认颜色
+                phoneColor:'#999',//号码默认颜色
                 radius:0,//圆角的初始值
                 margin:0,//外边距
-                padding:0,//内边距        
+                padding:5,//内边距        
             };
         },
         created:function(){

@@ -92,14 +92,14 @@
 
         data() {
             return {
-                titleName:'',//名称
-                sitesName:'',//地址
+                titleName:'云家居',//名称
+                sitesName:'成都',//地址
                 backgroundColor: '',//背景默认颜色
                 titleColors:'#000',//标题颜色默认颜色
-                sitesColor:'#000',//地址默认颜色
+                sitesColor:'#999',//地址默认颜色
                 radius:0,//圆角的初始值
                 margin:0,//外边距
-                padding:0,//内边距
+                padding:5,//内边距
                 type: 'tab',
                 address_detail: '北京市海淀区',
                 center: {lng: 111, lat:34},

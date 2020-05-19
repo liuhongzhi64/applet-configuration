@@ -42,14 +42,7 @@
         <div class="centerImgList">
           <div class="imgsListsShow">
             <img v-for="(i,k) in imagesList" :key="k" id="i.id" :src="i.url" alt  @click="selectPrint(i,k)"  ref="pictureUrl" v-bind:class='{bg:k==isactive}' />
-            <img src="../assets/imgs/login.png" />
-            <!-- <img src="../assets/imgs/pagesImgs/30.jpg" />
-            <img src="../assets/imgs/pagesImgs/31.jpg" />
-            <img src="../assets/imgs/pagesImgs/32.jpg" />
-            <img src="../assets/imgs/pagesImgs/33.jpg" />
-            <img src="../assets/imgs/pagesImgs/34.jpg" />
-            <img src="../assets/imgs/pagesImgs/35.jpg" />
-            <img src="../assets/imgs/pagesImgs/36.jpg" /> -->
+            <!-- <img src="../assets/imgs/login.png" /> -->
           </div>
         </div>
         <!-- 底部分页 -->
@@ -71,17 +64,17 @@ export default {
       pagers: 10, //图片数量
       isactive:0,
       imagesList: [
-        { url: "/img/login.d3c4bad8.png", id: 1 },
-        { url: "/img/30.f1e6f8d4.jpg", id: 2 },
-        { url: "/img/31.d983e4f3.jpg", id: 3 },
-        { url: "/img/32.0abd6721.jpg", id: 4 },
-        { url: "/img/33.d962cfe4.jpg", id: 5 },
-        { url: "/img/34.44c20bef.jpg", id: 6 },
-        { url: "/img/35.2afe101f.jpg", id: 7 },
-        { url: "/img/36.a94f52d8.jpg", id: 8 },
-        { url: "/img/34.44c20bef.jpg", id: 9 },
-        { url: "/img/31.d983e4f3.jpg", id: 10 },
-        { url: "/img/33.d962cfe4.jpg", id: 11 }
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314020&di=c704776db54e44c01ccd4f006a04090f&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20190508%2F19%2F1557313363-hKmMzHUxPj.jpg", id: 1 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868313881&di=4873bca5cf12ae9a86c738f9d7d8d036&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20190324%2F17%2F1553419572-MTKUiPedpQ.jpeg", id: 2 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868336747&di=69504e1624b89f6c32eb57d95a453c6e&imgtype=0&src=http%3A%2F%2Fimg1.imgtn.bdimg.com%2Fit%2Fu%3D3416193591%2C1286732188%26fm%3D214%26gp%3D0.jpg", id: 3 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314023&di=e302bfb9948dd4567e8fcfca6c1b86c2&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20191101%2F23%2F1572622192-OcRVLodZxP.jpg", id: 4 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314022&di=3952a99b4b9be52929f6f3b613819c7d&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20180830%2F18%2F1535625449-XrFcLQYkws.jpg", id: 5 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314022&di=fb29837451f213b6e21e53afaeaded32&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20181007%2F15%2F1538896650-cXJKpwZjxn.jpg", id: 6 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314022&di=1f986584c807f42c3661c0ffaf98f152&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20190713%2F17%2F1563009296-jWsbqHcZUd.jpg", id: 7 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314021&di=e2d7cf45ad5195ae874ad234414b3852&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20180801%2F23%2F1533137118-djyIOrVWCZ.jpg", id: 8 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314021&di=0c5b9316f7e5dca3e3ad8330e09dc1c5&imgtype=0&src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2Fc%2F54781ec539af8.jpg", id: 9 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314021&di=852c6d2faec66ee1c41c34536ed0fc29&imgtype=0&src=http%3A%2F%2Fwww.2qqtouxiang.com%2Fpic%2FPF7876_02.jpg", id: 10 },
+        { url: "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1589868314020&di=de5fb5854b307c0e00e4a627430f965f&imgtype=0&src=http%3A%2F%2Fimage.biaobaiju.com%2Fuploads%2F20180802%2F00%2F1533141821-HnkwUcFiZB.jpg", id: 11 }
       ],
       groupingList: [
         { id: 1, name: "全部分组" },

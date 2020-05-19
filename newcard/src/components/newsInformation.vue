@@ -55,7 +55,7 @@
         data() {
             return {
                 radio: '1',//选择来源的按钮
-                backgroundColor: '#ccc',//背景默认颜色
+                backgroundColor: '',//背景默认颜色
                 dialogFormVisible: false,
                 form: {
                 name: '',
@@ -91,7 +91,7 @@
             // 点击背景颜色
             resetBackgroundColor(){
                 // 重置默认背景颜色
-                this.backgroundColor = "#ccc"
+                this.backgroundColor = ""
                 this.$refs.defultBackgroundColor.color.value = this.backgroundColor
                 // console.log(this.$refs.defultBackgroundColor.$el.firstElementChild.firstElementChild.firstChild.style.backgroundColor)
                 this.$refs.defultBackgroundColor.$el.firstElementChild.firstElementChild.firstChild.style.backgroundColor = this.backgroundColor
