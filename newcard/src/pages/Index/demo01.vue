@@ -11,9 +11,9 @@
                 :clone="cloneShow"
                 @change="log"
                 >
-                <div class="list-group-item item" v-for="(item,key) in list1" :key="key" v-bind:class='{selectItems:key==isactives}' >
-                    <div @click="selectElements(item,key)">{{ item.name }} </div>
-                  <!-- <i :style="{'background':`${item.url} 0% 0% / 100% 100%  no-repeat)`}"></i> -->
+                <div class="list-group-item item" v-for="(item,key) in list1" :key="key" v-bind:class='{selectItems:key==isactives}' @click="selectElements(item,key)">
+                    <!-- <i :index='key' :style="{'background': `url(${item.url}) 0% 0% / 100% 100%  no-repeat`,'width':'100%','height':'15px','display':'block'}"></i> -->
+                    <div>{{ item.name }} </div>
                 </div>
                 </draggable>
             </div>
@@ -37,16 +37,11 @@
                     @change="log1"
                     style="min-height:500px;"
                     >
-                    <!-- 这是以前的样式结构 -->
-                    <!-- <div class="list-group-item item" 
-                    v-for="(i,index) in list2" :key="index"  
-                    :id="forId(i.id)"
-                    :class="{'delStyle':i.name ==''}" 
-                    :name="forEnglishName(i.EnglishName)"                
-                    > -->
+       
                     <div class="list-group-item item" 
                     v-for="(i,index) in list2" :key="index"  
                     :id="forId(i.id)"
+                    :index ='index'
                     v-bind:class='{selectItem:index==isactive}' 
                     :name="forEnglishName(i.EnglishName)"                
                     >
@@ -71,15 +66,34 @@
                                 </div>
                                 <img src="../../assets/imgs/phone.png" alt="">
                             </div>
-                            <!-- <span :style="{'color':elementSendPhoneTitleColorStyle}">{{ PhoneTitle }}:</span>
-                            <span :style="{'color':elementSendPhoneColorStyle}" >{{ SendPhone }}</span>  -->
                         </div>
                         <!-- 图片 -->
-                        <div class="name"  v-if="i.name !=='地址'&&i.name!=='电话'&&i.name !== '请添加新闻资讯'&&i.name==='图片'&&i.name !== '富文本'&&i.name !== '视频'&&i.name !=='文本'&&i.name !== '图文广告'&&i.name !== '营销活动'&&i.name!=='标题'&&i.name !== '空白辅助'" :style="{'backgroundColor':pictureStyles,'borderRadius':pictureSendPhoneRadius+'px','marginLeft':pictureSendPhoneMargin+'px','marginRight':pictureSendPhoneMargin+'px','paddingLeft':pictureSendPhonePadding+'px','paddingRight':pictureSendPhonePadding+'px'}"> 
-                            <div style=" width: 100%;text-align: center;"><img style="width: 100%; height: 100%; text-align: center; display: block; border-radius: 0px;" src="../../assets/imgs/picture.png" alt=""></div>
+                        <div class="name"  
+                            v-if="i.name !=='地址'&&i.name!=='电话'&&i.name !== '请添加新闻资讯'&&i.name==='图片'&&i.name !== '富文本'&&i.name !== '视频'&&i.name !=='文本'&&i.name !== '图文广告'&&i.name !== '营销活动'&&i.name!=='标题'&&i.name !== '空白辅助'" 
+                            :style="{'backgroundColor':pictureStyles,'borderRadius':pictureSendPhoneRadius+'px','marginLeft':pictureSendPhoneMargin+'px','marginRight':pictureSendPhoneMargin+'px','paddingLeft':pictureSendPhonePadding+'px','paddingRight':pictureSendPhonePadding+'px',}" 
+                            > 
+                            <img style="width: 100%;height:248px; text-align: center; display: block; border-radius: 0px;" :src="pictureBackgroundImg" alt="" v-if="pictureConfiggurationList.length == 0">
+                            <div style=" width: 100%;height:248px;text-align: center;" v-for="(i,k) in pictureConfiggurationList" :key="k" :index='k'>
+                                <img style="width: 100%; height: 100%; text-align: center; display: block; border-radius: 0px;" :src="i.pictureUrl" alt="" v-if="pictureConfiggurationList">
+                            </div>
                         </div>
                         <!-- 新闻资讯 -->
-                        <div class="name"  v-if="i.name === '请添加新闻资讯' && i.name !=='地址'&&i.name!=='电话'&&i.name !== '富文本'&&i.name !== '视频'&&i.name !=='文本'&&i.name !== '图文广告'&&i.name !== '营销活动'&&i.name!=='标题'&&i.name !== '空白辅助'" :style="{'backgroundColor':elementNewStyle}">{{ i.name }}</div>
+                        <div class="name"  v-if="i.name === '请添加新闻资讯' && i.name !=='地址'&&i.name!=='电话'&&i.name !== '富文本'&&i.name !== '视频'&&i.name !=='文本'&&i.name !== '图文广告'&&i.name !== '营销活动'&&i.name!=='标题'&&i.name !== '空白辅助'" :style="{'backgroundColor':elementNewStyle}">
+                            <div v-if="newsRichList.length == 0">{{i.name}}</div>
+                            <div class="newContent" v-for="(i,k) in newsRichList" :key="k" :index="k">
+                                <div class="newContentText">
+                                    <div>{{i.name}}</div>
+                                    <div class="newContentTextTime">{{i.date}}</div>
+                                </div>
+                                <div class="newContentImg" style=" width: 100px;height:60px">
+                                    <img :src="i.url" alt="" style="width: 100%; height: 100%;">
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
                         <!-- 富文本编辑 -->
                         <div class="name"  v-if="i.name !=='地址'&&i.name!=='电话'&&i.name !== '请添加新闻资讯'&&i.name!=='图片'&&i.name === '富文本'&&i.name !== '视频'&&i.name !=='文本'&&i.name !== '图文广告'&&i.name !== '营销活动'&&i.name!=='标题'&&i.name !== '空白辅助'" :style="{'min-height':'20px'}"></div>
                         <!-- 视频编辑 -->
@@ -99,13 +113,6 @@
                         </div>
                         <!-- 图文广告模板2 -->
                         <div class="name"   v-if="i.name !=='地址'&&i.name!=='电话'&&i.name !== '请添加新闻资讯'&&i.name!=='图片'&&i.name !== '富文本'&&i.name !== '视频'&&i.name !=='文本'&&i.name!==''&&i.name === '图文广告'&&i.name !== '营销活动'&&i.name!=='标题'&&i.name !== '空白辅助' &&imageTextchangeTemplate ===2" :style="{'backgroundColor':imageTextBackgroundColor,'borderRadius':imageTextBackgroungRadius+'px','marginLeft':imageTextMargin+'px','marginRight':imageTextMargin+'px','paddingLeft':imageTextPadding+'px','paddingRight':imageTextPadding+'px','display':'flex'}">
-                            <!-- <div v-for="(i,k) in imageTextList" :key="k" style="display:flex">
-                                <div :style=" {'backgroundColor':imageTextOnebackgroundColor,'width': '80%','height': '100%','borderRadius':imageTextOneRadius+'px','margin':'0 5px'}">
-                                    <img :style="{'borderRadius':imageTextRadius+'px','width': '100%','height': '100%'}" src="../../assets/imgs/imageText.png" alt="">
-                                    <span  :style=" {'color':imageTextTitle1Color,}">{{i.imageTextTitle}}</span><br>
-                                    <span :style=" {'color':imageTextPrice1Color,}">{{i.imageTextPrice}}</span>
-                                </div>
-                            </div> -->
                             <div :style=" {'backgroundColor':imageTextOnebackgroundColor,'width': '80%','height': '100%','borderRadius':imageTextOneRadius+'px','margin':'0 5px'}">
                                 <img :style="{'borderRadius':imageTextRadius+'px','width': '100%','height': '100%'}" src="../../assets/imgs/imageText.png" alt="">
                                 <span  :style=" {'color':imageTextTitleColor,}">{{imageTextTitle1}}</span><br>
@@ -234,10 +241,6 @@
                         <!-- <div  v-if="i.name === ''" :style="{'backgroundColor':sublineBackgroundColor,'paddingLeft':sublinePadding+'px','paddingRight':sublinePadding+'px', 'margin-top': '10px', 'margin-left': '5%',}"></div> -->
                     </div>
                     <i class="del" @click="delElement(i)"></i> 
-                    <!-- <span class="delete" @click="delElement(i)">X</span> -->
-                    <!-- <div style="float: right; width:20px" @click="delElement(i)">1
-                        <div class="del"></div>
-                    </div>  -->
                     </div>
                     </draggable> 
                 </div>
@@ -309,9 +312,9 @@
                 <!-- 辅助线 -->
                 <sublineStyle v-if="sublineStyle" @getData="getData" @padding='padding' @colors='colors' @styleRadio='styleRadio' @thickness='thickness' />
                 <!-- 图片 -->
-                <pictureStyle v-if="pictureStyle" @getData="getData" @radius="radius" @margin='margin' @padding='padding' />
+                <pictureStyle v-if="pictureStyle" @getData="getData" @radius="radius" @margin='margin' @padding='padding' @pictureBackgroundPicture='pictureBackgroundPicture' @pictureList='pictureList' />
                 <!-- 新闻样式 -->
-                <newsInformation v-if="newsInformation" @getData="getData"  />
+                <newsInformation v-if="newsInformation" @getData="getData" @multipleSelectionList = 'multipleSelectionList'  />
                 <!-- 富文本样式 -->
                 <richText v-if="richText" />
                 <!-- 视频样式 -->
@@ -395,7 +398,7 @@ export default {
         return {
         list1: [
             // { name: "优惠券", id: 1 ,EnglishName:'discounts',url:'../../assets/imgs/elementImg/discounts.png' ,},
-            { name: "优惠券", id: 1 ,EnglishName:'discounts',url:'url(' + require('../../assets/imgs/elementImg/discounts.png') + ')'},
+            { name: "优惠券", id: 1 ,EnglishName:'discounts',url:require('../../assets/imgs/elementImg/discounts.png')},
             { name: "地址", id: 2 ,EnglishName:'site',url:'../../assets/imgs/elementImg/site.png'},
             { name: "电话", id: 3 ,EnglishName:'phone',url:'../../assets/imgs/elementImg/phone on.png'},
             { name: "新闻资讯", id: 4 ,EnglishName:'news-information',url:'../../assets/imgs/elementImg/news.png'},
@@ -423,7 +426,7 @@ export default {
         elementName:'',//组件名称
         elementDefultStyle:false,//默认样式
         color: '',//样色表的使用
-        defultBackgroundColor:"#eee",//默认背景色
+        defultBackgroundColor:"",//默认背景色
         defultBackgroundPicture:'',//默认背景图
         defultBackgroundImg:'',//背景图
         centerDialogVisible: false,//默认设置的点击背景图片的开关
@@ -439,6 +442,7 @@ export default {
         pictureStyle:false,//图片样式
         newsInformation:false,//新闻样式
         richText:false,//新闻样式
+        newsRichList:[],//新闻的展示内容列表
         videoStyle:false,//视频样式
         imageTextAdvertising:false,//图文广告样式
         marketingCampaign:false,//营销活动样式
@@ -467,6 +471,8 @@ export default {
         pictureSendPhoneRadius:0,//图片的默认圆角大小
         pictureSendPhoneMargin:0,//图片的默认内边距
         pictureSendPhonePadding:0,//图片的默认外边距
+        pictureBackgroundImg:require('../../assets/imgs/picture.png'),//图片的背景图
+        pictureConfiggurationList:[],//图片的背景图
         TextBackgroundColor:'#eee',//文本的默认背景颜色
         TextRadius:0,//文本的默认圆角大小
         TextMargin:0,//文本的默认外边距
@@ -1138,7 +1144,7 @@ export default {
                         this.blankAssist=false;
                         this.commodityStyle=false;
                     }
-                    else if(item.name === '辅助线' ){
+                    else if(item.name === '' ){
                         this.defultStyle = false;
                         this.discountsStyle = false;
                         this.elementDefultStyle = false;
@@ -1302,6 +1308,7 @@ export default {
             }
         },
         selectElements(item,k){
+            // console.log(item,k)
             this.isactives=k
         },
         // 点击删除
@@ -1355,14 +1362,8 @@ export default {
         // 点击重置默认背景颜色
         resetDefultBackgroundColor(){
             // 重置默认背景颜色
-            this.defultBackgroundColor = "#eee"
+            this.defultBackgroundColor = ""
             this.color = this.defultBackgroundColor
-            // console.log(this.$refs.defultBackgroundColor.$el.firstElementChild.firstElementChild.firstChild.style.backgroundColor)
-            // console.log(this.color)
-            // this.$refs.defultBackgroundColor.$el.firstElementChild.firstElementChild.firstChild.style.backgroundColor = this.defultBackgroundColor
-            // this.$refs.defultBackgroundColor.$el.firstElementChild.firstElementChild.firstChild.style.backgroundColor = this.defultBackgroundColor
-            // console.log(this.$refs.defultBackgroundColor.$refs.colorPicker.children[2].firstChild.firstChild.style.backgroundColor)
-            // this.$refs.defultBackgroundColor.$refs.colorPicker.children[2].firstChild.firstChild.style.backgroundColor = this.defultBackgroundColor
         },
         // 点击全屏显示的启动
         change(){
@@ -1417,6 +1418,14 @@ export default {
                 this.sitesTitleName = data
             }
         },
+        // 新闻列表子组件传过来的数组
+        multipleSelectionList(data,item){
+            if(item == '新闻资讯'){
+                this.newsRichList = data
+                // console.log(data)
+            }
+        },
+
         // 地址
         sitesName(data,item){
            if(item == '地址'){
@@ -1456,7 +1465,6 @@ export default {
 
             for(let i=0;i<this.list2.length;i++){
                 if(this.list2[i].name == item){
-                    // console.log(this.list2[i])
                     return true;
                 }
             }
@@ -1483,7 +1491,20 @@ export default {
         titleInput(data,item){
             if(item ==='图文广告'){
                 console.log(data)
+            }
+        },
+        // 图片的背景图
+        pictureBackgroundPicture(data,item){
+            if(item == '图片'){
                 // console.log(data)
+                this.pictureBackgroundImg = data
+            }
+        },
+        // 图片的背景图片数组
+        pictureList(data,item){
+            console.log(data)
+            if(item == '图片'){
+                this.pictureConfiggurationList = data
             }
         },
         // 子组件的字体大小
@@ -1558,7 +1579,6 @@ export default {
         },
         // 获取子组件传的标题颜色
         setTitleColor(data,item){
-            // console.log(data,item)
             if(item == '地址'){
                 this.elementTitleColorStyle = data
             }else if(item == '电话'){
@@ -1566,11 +1586,8 @@ export default {
             }else if(item == '图文广告'){
                 this.imageTextTitleColor = data
             }
-            // this.elementTitleColorStyle = data
-            // this.elementSendPhoneTitleColorStyle = data
             for(let i=0;i<this.list2.length;i++){
                 if(this.list2[i].name == item){
-                    // console.log(this.list2[i])
                     return true;
                 }
             }          
@@ -1582,14 +1599,12 @@ export default {
             }
             for(let i=0;i<this.list2.length;i++){
                 if(this.list2[i].name == item){
-                    // console.log(this.list2[i])
                     return true;
                 }
             }          
         }, 
         // 获取子组件的位置颜色
         setsitesColor(data,item){
-            // this.elementColorStyle = data
             if(item == '地址'){
                 this.elementColorStyle = data
             }else if(item == '电话'){
@@ -1607,8 +1622,6 @@ export default {
             }else if(item == '电话'){
                 this.elementSendPhoneColorStyle = data
             }
-            // this.elementColorStyle = data
-            // this.elementSendPhoneColorStyle = data
             for(let i=0;i<this.list2.length;i++){
                 if(this.list2[i].name == item){
                     return true;
@@ -1617,7 +1630,6 @@ export default {
         },
         // 获取子组件的圆角变化
         radius(data,item){
-            // console.log(data,item)
             if(item == '地址'){
                 this.elementRadius = data
             }else if(item == '电话'){
@@ -1658,13 +1670,10 @@ export default {
             }else if(item == '标题'){
                 this.titleMargin = data
             }else if(item == '图文广告'){
-                // console.log(data)
                 this.imageTextMargin = data
             }else if(item == '营销活动'){
                 this.marketMargin = data
             }
-            // this.elementMargin= data
-            // this.elementSendPhoneMargin= data
             for(let i=0;i<this.list2.length;i++){
                 if(this.list2[i].name == item){
                     return true;
@@ -1690,8 +1699,6 @@ export default {
             }else if(item == '营销活动'){
                 this.marketPadding = data
             }
-            // this.elementPadding = data
-            // this.elementSendPhonePadding = data
             for(let i=0;i<this.list2.length;i++){
                 if(this.list2[i].name == item){
                     return true;
@@ -1701,38 +1708,32 @@ export default {
         // 辅助线的颜色
         colors(data,item){
             if(item =='辅助线'){
-                // console.log(data)
                 this.sublineColor = data
             }
         },
         // 图片间距
         spaceBetweenRadius(data,item){
             if(item =='营销活动'){
-                // console.log(data)
                 this.marketspaceBetweenRadius = data       
             }
         },
         // 图片宽度
         wideRadius(data,item){
             if(item =='营销活动'){
-                // console.log(data)
                 this.marketwideRadius = data       
             }
         },
         // 背景圆角
         backgroundRadius(data,item){
             if(item === '图文广告'){
-                // console.log(data)
                 this.imageTextBackgroungRadius = data
             }
         },
         // 单个图片的圆角
         oneRadius(data,item){
             if(item =='营销活动'){
-                // console.log(data)
                 this.marketOneRadius = data       
             }else if(item =='图文广告'){
-                // console.log(data)
                 this.imageTextOneRadius = data
             }
         },
@@ -1758,8 +1759,6 @@ export default {
     watch:{
         // 监听默认背景颜色改变事件
         color(){
-            // console.log(this.$refs.defultBackgroundColor)
-            // this.defultBackgroundColor = this.$refs.defultBackgroundColor.color.value
             this.defultBackgroundColor = this.color
         },
     },
@@ -1791,7 +1790,7 @@ export default {
                         cursor: pointer;
                         width: 100px;
                         height: 78px;
-                        line-height: 78px;
+                        line-height: 30px;
                         border: 1px dashed #eee;
                         overflow: hidden;
                         margin-left: 5px;
@@ -1803,17 +1802,15 @@ export default {
                         border:1px dashed #2692ff;
                     }
                     .selectItems{
-                        border: 1px dashed #2692ff;;
+                        border: 1px solid #2692ff;;
                         height: auto;
                     }
                 }
             }
         }
         .center{
-            // width: 40%;
             flex: 1;
             height: 100%;        
-            // background-color: #ccc;
             .showElement{
                 // width: 45%;
                 width: 376px;
@@ -1844,9 +1841,9 @@ export default {
                 .showElementCenter{
                     width: 350px;    
                     min-height: 500px;
+                    border: 1px solid #ccc;
                     .item{
                         cursor: pointer;
-                        border: 1px solid rgb(90, 136, 235);
                         min-height: 18px;
                         display: flex;
                         justify-content: flex-end;
@@ -1893,8 +1890,24 @@ export default {
                         }
                     }
                     .selectItem{
-                        border: 1px dashed rgb(90, 136, 235);
+                        border: 1px solid rgb(90, 136, 235);
                         height: auto;
+                    }
+                }
+            }
+            .name{
+                .newContent{
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 5px; 
+                    .newContentText{
+                        width: 67%;
+                        display: flex;
+                        flex-direction:column;
+                        justify-content: space-between;
+                        .newContentTextTime{
+                            border-bottom: 1px solid #ccc;
+                        }
                     }
                 }
             }
@@ -2038,5 +2051,5 @@ export default {
     height: 178px;
     display: block;
   }
- 
+
 </style>

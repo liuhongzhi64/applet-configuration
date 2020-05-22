@@ -35,7 +35,7 @@
                 <el-slider
                 v-model="thickness"
                 show-input
-                :max=100
+                :max=20
                 :min=1>
                 </el-slider>
             </div>

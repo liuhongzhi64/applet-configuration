@@ -41,7 +41,7 @@
         <!-- 中间展示区 -->
         <div class="centerImgList">
           <div class="imgsListsShow">
-            <img v-for="(i,k) in imagesList" :key="k" id="i.id" :src="i.url" alt  @click="selectPrint(i,k)"  ref="pictureUrl" v-bind:class='{bg:k==isactive}' />
+            <img v-for="(i,k) in imagesList" :key="k" id="i.id" :src="i.url" alt  @click="selectPrint(i,k)"  ref="pictureUrl" v-bind:class='{bg:k==isactive}'  :index='k' />
             <!-- <img src="../assets/imgs/login.png" /> -->
           </div>
         </div>

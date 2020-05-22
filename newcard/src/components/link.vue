@@ -314,6 +314,7 @@
                 multipleSelection: [],//商品列表多次选项的值
                 pagemultipleSelection: [],//页面类型多次选项的值
                 pageCurrentPage:1,//页面列表分页当前页
+
             }
         },
         methods:{
@@ -356,7 +357,7 @@
             // 商品列表选择的内容
             handleSelectionChange(val) {
                 this.multipleSelection = val;
-                console.log(val)
+                // console.log(val)
             },
             handleChangepageClass(val){
                 console.log(val)
@@ -367,7 +368,7 @@
             },
             // 页面列表
             pageChange(val){
-                console.log(val)
+                // console.log(val)
                 this.pagemultipleSelection = val;
             },
             //页面列表分页
@@ -377,6 +378,11 @@
             pageHandleCurrentChange(val) {
                 console.log(`当前页: ${val}`);
             },
+        },
+        watch:{
+            multipleSelection(){
+                this.$emit('multipleSelection',this.multipleSelection)
+            }
         }
     }
 </script>
